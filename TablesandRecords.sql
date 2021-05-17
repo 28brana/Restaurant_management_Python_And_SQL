@@ -136,9 +136,9 @@ insert into Workers values(203,'Aditya','Cleaner',3000,'13-Feb-17');
 --Managers Table
 
 create table Managers(
-    Mid number references Workers(Wid),
+    Wid number references Workers(Wid),
     Department varchar2(20),
-    NW number default 20
+    NW number default 20 --no fo workers work under them
 );
 
 --Managers Records
