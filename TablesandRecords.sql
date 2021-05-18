@@ -38,7 +38,7 @@ create table Orders(
 Order_id number primary key,
 Time date not null ,
 status varchar2(10) check(status = 'Servered' or status = 'Pending'),
-Quantity number not null
+Quantity number not null,
 Meal_id number references Meals(Meal_id)
 );
 
