@@ -1,10 +1,12 @@
 from tkinter import *
 from tkinter.font import families
-from PIL import Image,ImageTk
 import cx_Oracle
+from tkinter import ttk
 import tkinter.messagebox as tmsg
 
-connect=''
+# connect=cx_Oracle.connect()
+connect=cx_Oracle.connect('system/28brana')
+
 class App(Tk):
 
     def __init__(self):
@@ -35,17 +37,22 @@ class App(Tk):
         container.grid_rowconfigure(0, weight = 1)
         container.grid_columnconfigure(0, weight = 1)
         
-        frame=Login_window(container,self)
-        frame.Login()
-        frame.grid(row=0,column=0,sticky='nsew')
+        # frame=Database_window(container,self)
+        # frame.Structure()
+        # frame.grid(row=0,column=0,sticky='nsew')
         
-        # self.frames = {}
-        # for F in ( Page1, Page2):
+        self.frames = {}
+        for F in (Menu_window,Login_window ):
 
-        #     frame = F(container, self)
-        #     self.frames[F] = frame
+            frame = F(container, self)
+            self.frames[F] = frame
 
-        #     frame.grid(row = 0, column = 0, sticky ="nsew")
+            frame.grid(row = 0, column = 0, sticky ="nsew")
+
+    def show(self,window):
+        frame = self.frames[window]
+        frame.tkraise()
+	   
 
         
 
@@ -56,8 +63,10 @@ class App(Tk):
 class Login_window(Frame):
     def __init__(self,parent,controller):
         Frame.__init__(self,parent)
+        self.controller=controller
         self.width=self.winfo_screenwidth()
         self.height=self.winfo_screenheight()
+        self.Login()
 
 
     def validation(self,user,password):
@@ -67,6 +76,7 @@ class Login_window(Frame):
             global connect 
             connect=cx_Oracle.connect(f'{self.user}/{self.password}')
             tmsg.showinfo('Successfully connected',f'You been successfully connected to {self.user}\n')
+            self.controller.show(Menu_window)
             print('Successfully connected',' You are now Connect !!!!!!\n')
         except cx_Oracle.DatabaseError as e:
             x=tmsg.showerror('Wrong Input','Your Username or Password is wrong\n \n Please Enter correct Username or Password')
@@ -95,6 +105,78 @@ class Login_window(Frame):
     #----- Submit Button  -------------------------
         Button(Loginbox,text='Login',bg='red',fg='white',width=15,font=('comic sansns',12),command=lambda:self.validation(uservalue.get(),passwordvalue.get())).pack(pady=50)
     
+
+class Menu_window(Frame):
+    def __init__(self,parent,controller):
+        Frame.__init__(self,parent)
+        self.width=self.winfo_screenwidth()
+        self.height=self.winfo_screenheight()
+        self.Structure()
+    
+    def Structure(self):
+   
+    #-- Order-MENU------------------------------------
+        #----- Menu box --------------
+        menubox=Frame(self,borderwidth=3,relief=SUNKEN,width=500,height=650)
+        menubox.pack_propagate(0)
+        menubox.pack(side=LEFT,padx=20)
+        #----- Menu Heading -----------
+        menuheader=Frame(menubox,bg='#FC6646')
+        menuheader.pack(fill='x')
+        Label(menuheader,text='MENU',bg='#FC6646',fg='white',font=('comic sansns',17,'bold')).pack(fill='x')
+        #----- Sub Menu Heading -------
+        submenu=Frame(menubox,bg='#FC6646')
+        submenu.pack(fill='x')
+
+        Label(submenu,text='FOOD_ID',bg='#FC6646',font=('comic sansns',15,'bold'),fg='white').grid(row=0,column=0,padx=30)
+        Label(submenu,text='FOOD',bg='#FC6646',font=('comic sansns',15,'bold'),fg='white').grid(row=0,column=1,padx=50)
+        Label(submenu,text='Price',bg='#FC6646',font=('comic sansns',15,'bold'),fg='white').grid(row=0,column=2,padx=40)
+
+    #--- Menu Table ------------------------
+        
+        #-----styling tree-------------------------
+
+        style=ttk.Style()
+        style.theme_use('clam')
+        style.configure('Treeview',
+            background='silver',
+            rowheight=30,
+            font=('comic sansns',15)
+        )
+
+        my_menu=ttk.Treeview(menubox)
+        my_menu['columns']=('Food_id','Food','Price')
+
+        #-- Assiging width
+        my_menu.column('#0',width=0,stretch=NO)
+        my_menu.column('Food_id',width=100,anchor='c')
+        my_menu.column('Food',width=150,anchor='c')
+        my_menu.column('Price',width=100)
+        
+        #---- removing heading
+        my_menu['show']='tree'
+
+        #--- Adding data
+        global connect
+        cursor=connect.cursor()
+        cursor.execute('select meal_id,name,price from meals order by meal_id')
+
+        for i in cursor:
+            x=str(i[0])
+            y=str(i[1])
+            z=str(i[2])
+            my_menu.insert(parent='',index='end',value=(x,y,'Rs. '+z))
+
+        my_menu.pack(fill='both',expand=1)
+
+
+
+
+
+        
+
+
+
 
 
 root=App()
