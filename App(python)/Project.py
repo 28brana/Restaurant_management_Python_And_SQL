@@ -280,7 +280,17 @@ class Admin_window(Frame):
     def __init__(self,parent,controller):
         Frame.__init__(self,parent)
         self.width=self.winfo_screenwidth()
-        self.height=self.winfo_screenheight()        
+        self.height=self.winfo_screenheight()   
+
+        #GO Back Side bar
+
+        Goback=Frame(self,width=150,height=100,bg='red')
+        Goback.pack_propagate(0)
+        Goback.pack(side=RIGHT,fill=Y)
+
+        #Admin Button
+        Button(Goback,text='GO Back Menu',command=lambda: controller.show(Menu_window)).pack()
+
 
         #Tree Frame
         tree_frame=Frame(self,width=500,height=500,bg='red')
@@ -371,11 +381,12 @@ class Admin_window(Frame):
         Entry(insert_frame,textvariable=post).grid(row=1,column=2)
         Entry(insert_frame,textvariable=salary).grid(row=1,column=3)
         Entry(insert_frame,textvariable=hiredate).grid(row=1,column=4)
-
+        #-> ->  Insert values
+        insert_list=[wid,name,post,salary,hiredate]
         # Insert Update
-        Button(sub_frame,text='Insert').pack(pady=10)
+        Button(sub_frame,text='Insert',command=lambda :self.insert_tab(insert_list)).pack(pady=10)
         Label(sub_frame,text='To Update write id same').pack()
-        Button(sub_frame,text='Update').pack()
+        Button(sub_frame,text='Update',command=lambda :self.update_tab(insert_list)).pack()
         
         # Delete 
         Label(admin_frame,text="Delete Record",bg='red').pack(fill=X)
@@ -389,7 +400,10 @@ class Admin_window(Frame):
         del_option.pack()
         Label(admin_frame,text="Enter Id for deleting").pack()
         Entry(admin_frame,textvariable=Id).pack(pady=10)
-        Button(admin_frame,text='Delete').pack()
+        Button(admin_frame,text='Delete',command=lambda :self.delete_tab(Id,del_value)).pack()
+
+        
+
     
     #Clear ALL table
     def remove_all(self):
@@ -488,20 +502,140 @@ class Admin_window(Frame):
             self.my_tree.insert('','end',value=i)
 
 
-            
-        
-    
     #This will contain all insert statements of workertable
     def insert_tab(self,arr):
-        pass
+        wid=arr[0].get()
+        name=arr[1].get()
+        post=arr[2].get()
+        salary=arr[3].get()
+        hiredate=arr[4].get()
+        if(name == ''):
+            tmsg.showerror('Name cant leave Null','Please Enter Name')
+            return
+        elif(post == ''):
+            tmsg.showerror('Post cant leave Null','Please Enter Post')
+            return
+        elif(hiredate == ''):
+            tmsg.showerror('Hiredate cant leave Null','Please Enter Hire date')
+            return
+        
+        try:
+            from datetime import datetime
+            datetime.strptime(hiredate, "%d-%b-%y")
+        except Exception as e:
+            tmsg.showerror('Wrong date Foramt','Please Enter date format \n dd-mon-yy ')
+            return
+
+
+        try:
+            cursor=connect.cursor()
+            old_wid=cursor.execute('select Wid from workers where wid = :1',(wid,))
+            old_wid=list(old_wid)
+            if(old_wid==[]):
+                bind_variable={
+                    '1':wid,
+                    '2':name,
+                    '3':post,
+                    '4':salary,
+                    '5':hiredate
+                }
+
+                cursor.execute('insert into workers values(:1,:2,:3,:4,:5)',bind_variable)
+                tmsg.showinfo('Successfully inserted','Your date is Successfully Inserted')
+                self.select_tab('Workers')
+            else:
+                tmsg.showinfo('Already Taken','Your Id is Already Taken Please Enter Valid Id')
+
+        except cx_Oracle.Error as e:
+            tmsg.showerror('Error while inserting : ',e)
+
         
     #This will contain all update statements of worker table
     def update_tab(self,arr):
-        pass
+        wid=arr[0].get()
+        name=arr[1].get()
+        post=arr[2].get()
+        salary=arr[3].get()
+        hiredate=arr[4].get()
+        if(name == ''):
+            tmsg.showerror('Name cant leave Null','Please Enter Name')
+            return
+        elif(post == ''):
+            tmsg.showerror('Post cant leave Null','Please Enter Post')
+            return
+        elif(hiredate == ''):
+            tmsg.showerror('Hiredate cant leave Null','Please Enter Hire date')
+            return
+        
+        try:
+            from datetime import datetime
+            datetime.strptime(hiredate, "%d-%b-%y")
+        except Exception as e:
+            tmsg('Wrong date Foramt','Please Enter date format \n dd-mon-yy ')
+            return
+        
+        try:
+            cursor=connect.cursor()
+            old_wid=cursor.execute('select Wid from workers where wid = :1',(wid,))
+            old_wid=list(old_wid)
+            # print(old_wid,'  ' ,wid)
+            if(old_wid==[(wid,)]):
+                bind_variable={
+                    '1':wid,
+                    '2':name,
+                    '3':post,
+                    '4':salary,
+                    '5':hiredate
+                }
+                cursor.execute('''
+                        Update workers
+                        Set name = :2 ,post = :3,salary = :4 ,hiredate = :5
+                        where wid = :1
+                ''',bind_variable)
+
+                self.select_tab('Workers')
+
+              
+                tmsg.showinfo('Successfully Updated','Your date is Successfully Updates')
+                self.select_tab('Workers')
+            else:
+                tmsg.showinfo('ID Doesnt Exists','Please Enter Valid Id Of worker whome you want to change Data')
+
+        except cx_Oracle.Error as e:
+            tmsg.showerror('Error while inserting : ',e)
+        
     
-    #This will delete all record related to given id of specific table
-    def delete(self,id,table):
-        pass
+    def delete_tab(self,id,table):
+        id=id.get()
+        table=table.get()
+        try:
+            cursor=connect.cursor()
+            stat=''
+            msg='Do you really want to delete ??????'
+            if(table=='Customers'):
+                stat=f'Delete customers where cust_id = {id}'
+            elif table =='Orders':
+                stat=f'Delete Orders where Order_id = {id}'
+            elif table == 'Meals':
+                # msg='If you delete Any Dish the Order for those Dishes would also deleted'
+            
+                stat=f'Delete Meals where Meal_id = {id}'
+                
+                    
+            elif table =='Workers':
+                stat=f'Delete workers where wid = {id}'
+            elif table == 'Managers':
+                stat=f'Delete managers where wid = {id}'
+            temp=tmsg.askokcancel('WARNING!!!!!!!',msg)
+            # print(stat)
+            if(temp):
+                cursor.execute(stat)
+                
+            self.select_tab(table)
+            
+        except cx_Oracle.Error as e:
+            tmsg.showerror('Error while inserting : ',e)
+        
 
 
 
