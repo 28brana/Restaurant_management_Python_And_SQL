@@ -41,19 +41,19 @@ class App(Tk):
         container.grid_columnconfigure(0, weight = 1)
         
         #  ------ Debugging  Purpose---------------------
-        frame=Admin_window(container,self)
-        frame.grid(row=0,column=0,sticky='nsew')
+        # frame=Admin_window(container,self)
+        # frame.grid(row=0,column=0,sticky='nsew')
         #------------------------------------------------
 
         #-> INITILIZING THE WINDOWS 
 
-        # self.frames = {}
-        # for F in (Admin_window,Menu_window,Login_window):
+        self.frames = {}
+        for F in (Admin_window,Menu_window,Login_window):
 
-        #     frame = F(container, self)
-        #     self.frames[F] = frame
+            frame = F(container, self)
+            self.frames[F] = frame
 
-        #     frame.grid(row = 0, column = 0, sticky ="nsew")
+            frame.grid(row = 0, column = 0, sticky ="nsew")
 
     #--- WINDOW SWITCHING FUNCTION------------------------------
     def show(self,window):
@@ -469,8 +469,8 @@ class Admin_window(Frame):
             self.my_tree['column']=('Order id','Time','Status','Quantity')
             #Formating columns
             self.my_tree.column('#0',width=0,stretch=NO)
-            self.my_tree.column('Order id',width=50,anchor=CENTER)
-            self.my_tree.column('Time',width=100,anchor=CENTER)
+            self.my_tree.column('Order id',width=100,anchor=CENTER)
+            self.my_tree.column('Time',width=150,anchor=CENTER)
             self.my_tree.column('Status',width=100,anchor=CENTER)
             self.my_tree.column('Quantity',width=100,anchor=CENTER)
            
@@ -482,19 +482,19 @@ class Admin_window(Frame):
             
         elif table == 'Meals':
             #Creating columns
-            self.my_tree['column']=('Meal id','Name','Price','Order id')
+            self.my_tree['column']=('Meal id','Name','Price')
             #Formating columns
             self.my_tree.column('#0',width=0,stretch=NO)
-            self.my_tree.column('Meal id',width=50,anchor=CENTER)
-            self.my_tree.column('Name',width=100,anchor=CENTER)
-            self.my_tree.column('Price',width=100,anchor=CENTER)
-            self.my_tree.column('Order id',width=100,anchor=CENTER)
+            self.my_tree.column('Meal id',width=150,anchor=CENTER)
+            self.my_tree.column('Name',width=150,anchor=CENTER)
+            self.my_tree.column('Price',width=150,anchor=CENTER)
+            
             
             #creating headings
             self.my_tree.heading('Meal id',text='Meal id')
             self.my_tree.heading('Name',text='Name')
             self.my_tree.heading('Price',text='Price')
-            self.my_tree.heading('Order id',text='Order id')
+            
             
         elif table == 'Workers':
             #Creating columns
@@ -518,9 +518,9 @@ class Admin_window(Frame):
             self.my_tree['column']=('Manager id','Department','NW')
             #Formating columns
             self.my_tree.column('#0',width=0,stretch=NO)
-            self.my_tree.column('Manager id',width=100,anchor=CENTER)
-            self.my_tree.column('Department',width=100,anchor=CENTER)
-            self.my_tree.column('NW',width=100,anchor=CENTER)
+            self.my_tree.column('Manager id',width=200,anchor=CENTER)
+            self.my_tree.column('Department',width=200,anchor=CENTER)
+            self.my_tree.column('NW',width=200,anchor=CENTER)
            
             #creating headings
             self.my_tree.heading('Manager id',text='Manager id')
