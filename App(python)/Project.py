@@ -1,15 +1,15 @@
 from tkinter import *
-from tkinter.font import families
 import cx_Oracle
 from tkinter import ttk
 import tkinter.messagebox as tmsg
 from datetime import date
 
-# connect=cx_Oracle.connect()
 connect=cx_Oracle.connect('system/28brana')
 
+#----------------------------------------------------------------#
+#                  RESTAURANT MANAGEMENT SYSTEM                  #
+#----------------------------------------------------------------#
 class App(Tk):
-
     def __init__(self):
         super().__init__()
         
@@ -19,9 +19,10 @@ class App(Tk):
         self.resizable(False,False)
         # self.configure(background="#FC6646")
 
+    #-- MAIN HEADING------------------------------------------     
         header=Frame(self,bg='#FC6646',borderwidth=20,height=80)
         header.pack(fill='x')
-
+        #-> MAIN ICON-----------------------------------------
         from PIL import Image,ImageTk
         icon=Image.open('restaurant.png')
         icon.thumbnail((75,75))
@@ -29,46 +30,56 @@ class App(Tk):
         icon_pic=Label(header,image=photo,bg='#FC6646')
         icon_pic.photo = photo
         icon_pic.pack(side='left',padx=50)
-
+           
+        #-> HEADING NAME
         Label(header,text='RESTAURANT MANAGEMENT SYSTEM',font=('comic sansns',20,'bold'),bg='#FC6646',fg='white').pack(pady=20,padx=280,side='left')
 
-    #--- Second Frame ---------------------
+    #--- MAIN BODY --------------------------------------------
         container = Frame(self,bg='grey')
         container.pack(side = "top", fill = "both", expand = True)
         container.grid_rowconfigure(0, weight = 1)
         container.grid_columnconfigure(0, weight = 1)
         
-        # frame=Admin_window(container,self)
-        # frame.grid(row=0,column=0,sticky='nsew')
-        
-        self.frames = {}
-        for F in (Admin_window,Menu_window,Login_window):
+        #  ------ Debugging  Purpose---------------------
+        frame=Admin_window(container,self)
+        frame.grid(row=0,column=0,sticky='nsew')
+        #------------------------------------------------
 
-            frame = F(container, self)
-            self.frames[F] = frame
+        #-> INITILIZING THE WINDOWS 
 
-            frame.grid(row = 0, column = 0, sticky ="nsew")
+        # self.frames = {}
+        # for F in (Admin_window,Menu_window,Login_window):
 
+        #     frame = F(container, self)
+        #     self.frames[F] = frame
+
+        #     frame.grid(row = 0, column = 0, sticky ="nsew")
+
+    #--- WINDOW SWITCHING FUNCTION------------------------------
     def show(self,window):
         frame = self.frames[window]
         frame.tkraise()
 	   
+    def Close_window(self):
+        connect.close()
+        self.destroy()
 
-        
 
-
-
-
-        
+#----------------------------------------------------------------------#
+#                          LOGIN WINDOW                                #
+#----------------------------------------------------------------------#     
 class Login_window(Frame):
+    #--- INITILIZING CONSTRUCTOR--------------------------------
     def __init__(self,parent,controller):
         Frame.__init__(self,parent)
         self.controller=controller
         self.width=self.winfo_screenwidth()
         self.height=self.winfo_screenheight()
+        #--- CALLING LOGIN WINDOW
         self.Login()
-
-
+    
+    #----CHECKING ORACLE DATABASE IS CONNECTED OR NOT -----------
+    #----CHECKING USER NAME IS VALID OR NOT----------------------
     def validation(self,user,password):
         self.user=user
         self.password=password
@@ -83,63 +94,69 @@ class Login_window(Frame):
         except Exception as e:
             tmsg.showerror('Wrong Input',e)
      
+    #---LOGIN WINDOW  --------------------------------------
     def Login(self):
+    #-- LOGIN BOX OR FRAME
         Loginbox=Frame(self,bg='white',borderwidth=6)
         Loginbox.place(x=self.width/3,y=self.height/6,width=400,height=500)
         Label(Loginbox,text='Login',bg='white',fg='blue',font=('comic sansns',19,'bold')).pack(pady=50)
     
-    # ----- user input------------------------------------
+    #-- INPUT USER VALUES  ---------------------------------
         uservalue=StringVar()
         user=Label(Loginbox,text="USERNAME",bg='white',font=('comic sansns',12),fg='grey')
         user.pack()
         userinput=Entry(Loginbox,textvariable=uservalue,font=('comic sansns',12))
         userinput.focus()
         userinput.pack(pady=20)
-    #----- Password input -------------------------------
+    #---INPUT PASSWORD VALUES -------------------------------
         passwordvalue=StringVar()
         password=Label(Loginbox,text="PASSWORD",bg='white',font=('comic sansns',12),fg='grey')
         password.pack(pady=10)
         passwordinput=Entry(Loginbox,textvariable=passwordvalue,font=('comic sansns',12))
         
         passwordinput.pack(pady=10)
-    #----- Submit Button  -------------------------
+    #---CONNECTING BUTTON  -------------------------
         Button(Loginbox,text='Login',bg='red',fg='white',width=15,font=('comic sansns',12),command=lambda:self.validation(uservalue.get(),passwordvalue.get())).pack(pady=50)
-    
 
+
+#-------------------------------------------------------------#
+#                      MENU WINDOW                            #
+#-------------------------------------------------------------#
 class Menu_window(Frame):
+    #INILIZING CONSTRUCTOR-------------------------------------
     def __init__(self,parent,controller):
         Frame.__init__(self,parent)
         self.width=self.winfo_screenwidth()
         self.height=self.winfo_screenheight()
         self.controller=controller
         self.Structure()
-        # self.configure(background="#FC6646")
     
+    
+    #MAIN BODY-------------------------------------------------
     def Structure(self):
     
     #--- MENU-FRAME ------------------------------------
-        #----- Menu box --------------
+        #>----- Menu box --------------
         menubox=Frame(self,borderwidth=3,relief=SUNKEN,width=500,height=650)
         menubox.pack_propagate(0)
         menubox.pack(side=LEFT,padx=20)
-        #----- Menu Heading -----------
+        # > >----- Menu Heading -----------
         menuheader=Frame(menubox,bg='#FC6646')
         menuheader.pack(fill='x')
         Label(menuheader,text='MENU',bg='#FC6646',fg='white',font=('comic sansns',17,'bold')).pack(fill='x')
-        #----- Sub Menu Heading -------
+        # > >----- Sub Menu Frame -------
         submenu=Frame(menubox,bg='#FC6646')
         submenu.pack(fill='x')
-
+        # > > >-----Sub Menu Headings
         Label(submenu,text='FOOD_ID',bg='#FC6646',font=('comic sansns',15,'bold'),fg='white').grid(row=0,column=0,padx=30)
         Label(submenu,text='FOOD',bg='#FC6646',font=('comic sansns',15,'bold'),fg='white').grid(row=0,column=1,padx=50)
         Label(submenu,text='Price',bg='#FC6646',font=('comic sansns',15,'bold'),fg='white').grid(row=0,column=2,padx=40)
 
     # >--- Menu Table ------------------------
         
-        #> >-----styling tree-------------------------
+        # > >-----styling tree-------------------------
 
         style=ttk.Style()
-        style.theme_use('clam')
         style.configure('Treeview',
             background='silver',
             rowheight=30,
@@ -149,16 +166,16 @@ class Menu_window(Frame):
         my_menu=ttk.Treeview(menubox)
         my_menu['columns']=('Food_id','Food','Price')
 
-        #-- Assiging width
+        # -- Assiging width-------------
         my_menu.column('#0',width=0,stretch=NO)
         my_menu.column('Food_id',width=100,anchor='c')
         my_menu.column('Food',width=150,anchor='c')
         my_menu.column('Price',width=100)
         
-        #---- removing heading
+        # ---- removing heading---------
         my_menu['show']='tree'
 
-        #--- Adding data
+        #--- Adding data----------------
         cursor=connect.cursor()
         cursor.execute('select meal_id,name,price from meals order by meal_id')
 
@@ -169,70 +186,81 @@ class Menu_window(Frame):
             my_menu.insert(parent='',index='end',value=(x,y,'Rs. '+z))
 
         my_menu.pack(fill='both',expand=1)
-    #Admin - board--------
-        option=Frame(self,bg='green',width=150)
+    # > ADMIN BLOCK-----------------------------------
+        option=Frame(self,bg='teal',width=150)
         option.pack_propagate(0)
         option.pack(fill='y',side=RIGHT)
 
-        #Admin Button
+        # > > ADMIN BUTTON
+        Label(option,text='>>>ADMIN>>>',fg='white',bg='#FC6646',font=(None,12)).pack(fill=X)
+        Admin_button=Button(option,text='GO TO ADMIN',bg='#FC6646',command= lambda :self.controller.show(Admin_window))
+        Admin_button.pack(fill=X,pady=15,padx=15)
 
-        Button(option,text='GO TO ADMIN',command= lambda :self.controller.show(Admin_window)).pack()
+        Log_out=Button(option,text='Log out',bg='#FC6646',command=lambda :self.controller.Close_window())
+        Log_out.pack(fill=X,padx=15,pady=120,side=BOTTOM)
 
 
-
-    #---Order-board--------
+    # > --- ORDER BOARD OR FRAME--------------
         order=Frame(self)
         order.pack(expand=1,fill='both')
         
-        #Frame
-        EntryFrame1=Frame(order,bg='green',width=500,height=500)
+        # > > ORDER FRAME-------------
+        EntryFrame1=Frame(order,bg='teal',width=500,height=500)
         EntryFrame1.pack_propagate(0)
         EntryFrame1.pack(pady=100)
         
-        #Order header
+        # > > ORDER HEADER-----------------
         Label(EntryFrame1,text='Order Menu',bg='#FC6646',fg='white',font=('comic sansns',15,'bold'),height=2).pack(fill=X)
 
-        # Value for entry
+        # > > ORDER VALUES-----------------------
         namevalue=StringVar()
         phonevalue=StringVar()
         cityvalue=StringVar()
         ordername=StringVar()
         
-        #Entry
-
-        Label(EntryFrame1,text='Name',bg='green',font=('comic sansns',15)).pack(pady=5)
+        # > > INPUT ORDER -----------------------
+        # > > > NAME
+        Label(EntryFrame1,text='Name',bg='teal',font=('comic sansns',15)).pack(pady=5)
         Entry(EntryFrame1,textvariable=namevalue,font=('comic sansns',10)).pack(pady=5)
-
-        Label(EntryFrame1,text='Phone number',bg='green',font=('comic sansns',15)).pack(pady=5)
+        
+        # > > > PHONE NUMBER
+        Label(EntryFrame1,text='Phone number',bg='teal',font=('comic sansns',15)).pack(pady=5)
         Entry(EntryFrame1,textvariable=phonevalue,font=('comic sansns',10)).pack(pady=5)
-
-        Label(EntryFrame1,text='City',bg='green',font=('comic sansns',15)).pack(pady=5)
+        
+        # > > > CITY
+        Label(EntryFrame1,text='City',bg='teal',font=('comic sansns',15)).pack(pady=5)
         Entry(EntryFrame1,textvariable=cityvalue,font=('comic sansns',10)).pack(pady=5)
-
-        Label(EntryFrame1,text='Order Name',bg='green',font=('comic sansns',15)).pack(pady=5)
-        #combo box
+        
+        # > > > ORDER NAME
+        Label(EntryFrame1,text='Order Name',bg='teal',font=('comic sansns',15)).pack(pady=5)
+        # > > > GETING VALUES
         cursor.execute('select name from meals')
         food_list=[]
         for i in cursor:
             food_list+=[i[0]]
         
+        # > >  > COMBOX BOX FOR DISHES
         box=ttk.Combobox(EntryFrame1,textvariable=ordername,state='readonly')
         box['values']=food_list
         box.current(1)
         box.pack(pady=5)
-
-        Label(EntryFrame1,text='Quantity',font=('comic sansns',15),bg='green').pack(pady=10)
+        
+        # > > > QUANTITY
+        Label(EntryFrame1,text='Quantity',font=('comic sansns',15),bg='teal').pack(pady=10)
         quantityvalue=Scale(EntryFrame1,from_=0,to=100,orient=HORIZONTAL,length=200)
         quantityvalue.pack(pady=5)
-
+        
+        # > > > ORDER NOW BUTTON
         info=[namevalue,phonevalue,cityvalue,ordername,quantityvalue]
         Button(EntryFrame1,text='ORDER NOW',bg='red',fg='white',command=lambda :self.Place_Order(info)).pack(pady=20)
 
         
     
-
+    #------PLACE ORDER---------------------------
+    #------ INSERTING DATA ----------------------
     def Place_Order(self,info):
         global connect
+        #GETING VALUES --------------------
         cursor=connect.cursor()
         today = date.today()
         name=info[0].get()
@@ -241,6 +269,7 @@ class Menu_window(Frame):
         ordername=info[3].get()
         quantity=info[4].get()
         d = today.strftime("%d-%b-%y")
+        #CHECKING VALUES----------------------------
         if(name==''):
             tmsg.showerror('Name','Please Enter Your Name !!!  ')
             return
@@ -251,7 +280,7 @@ class Menu_window(Frame):
             tmsg.showerror('Phone number','Length of Phone is Too small')
             return
         
-        
+        # GETTING VALUES FROM DATABASE-----------------
         c_id=cursor.execute('select max(cust_id) from customers')
         c_id=list(c_id)[0][0]+1
 
@@ -260,7 +289,8 @@ class Menu_window(Frame):
 
         meal_id=cursor.execute(f"select meal_id from meals where name='{ordername}'")
         meal_id=list(meal_id)[0][0]
-
+        
+        # INSERTING VALUES-------------------------------
         try:
             cursor.execute(f"insert into customers values({c_id},'{name}','{phone}','{city}',{order_id}) ")
         except cx_Oracle.Error as e:
@@ -275,58 +305,61 @@ class Menu_window(Frame):
         
 
 
-        
+#------------------------------------------------------------#
+#                        ADMIN WINDOW                        #
+#------------------------------------------------------------#
 class Admin_window(Frame):
+    
     def __init__(self,parent,controller):
         Frame.__init__(self,parent)
         self.width=self.winfo_screenwidth()
         self.height=self.winfo_screenheight()   
 
-        #GO Back Side bar
+        #GO Back Side bar -------------------------------------
 
-        Goback=Frame(self,width=150,height=100,bg='red')
+        Goback=Frame(self,width=150,height=100,bg='teal')
         Goback.pack_propagate(0)
         Goback.pack(side=RIGHT,fill=Y)
 
-        #Admin Button
-        Button(Goback,text='GO Back Menu',command=lambda: controller.show(Menu_window)).pack()
+        # > Admin Go back Button ---------------------------------
+        Button(Goback,text='GO Back Menu',bg='#FC6646',command=lambda: controller.show(Menu_window)).pack(fill=X,padx=20,pady=50)
 
+        # > Log out button
 
-        #Tree Frame
-        tree_frame=Frame(self,width=500,height=500,bg='red')
+        Button(Goback,text='Log out',bg='#FC6646',command=lambda:controller.Close_window()).pack(side=BOTTOM,fill=X,pady=100,padx=20)
+
+        # TREE FRAME ------------------------------------------
+        tree_frame=Frame(self,width=500,height=500,bg='#FC6646')
         tree_frame.pack_propagate(0)
         tree_frame.pack(side=LEFT,anchor=N,pady=60,padx=10)
-        Label(tree_frame,text='Tables',height=1,bg='pink').pack(fill=X)
+        Label(tree_frame,text='Tables',height=2,bg='#FC6646',fg='white',font=('Helvetica',15)).pack(fill=X)
          
         #Tree scroll bar
         tree_scroll=Scrollbar(tree_frame)
         tree_scroll.pack(side=RIGHT,fill=Y)
 
+        #Styling Tree view
+        tree_style=ttk.Style()
+        tree_style.configure('mystyle.Treeview.Heading',highlightthickness=1,font=('Georgia',12))
+        tree_style.configure('mystyle.Treeview',highlightthickness=1,font=('Arial',10))
+
         #Creating Tree
-        self.my_tree=ttk.Treeview(tree_frame,yscrollcommand=tree_scroll.set)
-        # self.my_tree['column']=('Worker id','Name','Post','Salary','Hire date')
+        self.my_tree=ttk.Treeview(tree_frame,yscrollcommand=tree_scroll.set,style="mystyle.Treeview")
+        #Tree Pack---------------------------------
+        self.my_tree.pack(fill=BOTH,padx=10,side=LEFT)
 
         #Tree scroll bar configure
         tree_scroll.config(command=self.my_tree.yview)
 
+        #Default table--------------------------------
+        self.select_tab('Customers')
 
-        #Add Data
-        # my_tree.insert('','end',value=(1,'Bharat','Bodss',2000,'28-1-2019'))
-        
-        self.my_tree.pack(fill=X,padx=10)
-
-        # #Styling Tree
-        # tree_style=ttk.Style()
-        # tree_style.configure('Treeview',
-        #     background='red'
-        # )
-
-        #Admin Frame
+        #Admin Frame--------------------------------------------------
         admin_frame=Frame(self,borderwidth=2,relief=SUNKEN)
-        admin_frame.pack(padx=10,pady=10)
+        admin_frame.pack(padx=10,pady=60)
 
         #Admin Header 
-        Label(admin_frame,text='ADMIN BLOCK',bg='red',height=2).pack(fill=X)
+        Label(admin_frame,text='ADMIN BLOCK',bg='#FC6646',font=('Arial',12),fg='white',height=2).pack(fill=X)
        
 
         #Display Frame
@@ -355,7 +388,7 @@ class Admin_window(Frame):
         #Subframe
         sub_frame=Frame(admin_frame,borderwidth=2,relief=SUNKEN)
         sub_frame.pack()
-        Label(sub_frame,text='Worker records',bg='red',height=1).pack(fill=X)
+        Label(sub_frame,text='Worker records',bg='#FC6646',fg='white',font=('Arial',12),height=1).pack(fill=X)
 
         # -> insertframe
         insert_frame=Frame(sub_frame)
@@ -389,7 +422,7 @@ class Admin_window(Frame):
         Button(sub_frame,text='Update',command=lambda :self.update_tab(insert_list)).pack()
         
         # Delete 
-        Label(admin_frame,text="Delete Record",bg='red').pack(fill=X)
+        Label(admin_frame,text="Delete Record",bg='#FC6646',fg='white',font=('Arial',12)).pack(fill=X)
 
         Id=IntVar()
         Label(admin_frame,text='Select Table from you want to delete').pack()
